@@ -1,0 +1,53 @@
+name: merge-rules
+
+on: pull_request
+
+jobs:
+  check-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          PATTERN='^(master|main|TEST|DEV|PROD|UAT|feature|hotfix)(\/.*)?$'
+
+          if [[ !$BRANCH_NAME =~ $PATTERN ]]; then
+            echo "Error: Branch name '$BRANCH_NAME' must match the pattern '$PATTERN' and be in lowercase."
+            exit 1
+          fi
+
+          echo "Branch name '$BRANCH_NAME' is valid."
+
+      - name: Check merge rules
+        shell: bash
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF == 'DEV' && ($HEAD_REF != 'main' &&  ! $HEAD_REF =~ 'feature/') ]]; then
+            echo "Error: You can only merge main and feature/* branches to DEV"
+            exit 1
+          elif [[ $BASE_REF == 'TEST' && $HEAD_REF != 'DEV' ]]; then 
+            echo "Error: You can only merge DEV to TEST"
+            exit 1
+          elif [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
+            echo "Error: You can only merge TEST to UAT"
+            exit 1
+          elif [[ $BASE_REF == 'PROD' && ($HEAD_REF != 'UAT' &&  !$HEAD_REF =~ 'hotfix/') ]]; then 
+            echo "Error: You can only merge UAT and hotfix/* branches to PROD"
+            exit 1
+          elif [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
+            echo "Error: You can only merge PROD to main"
+            exit 1
+          elif [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
+            echo "Error: You can only merge feature branches to feature branches"
+            exit 1
+          elif [[ $BASE_REF =~ 'hotfix/' || $BASE_REF =~ 'hotfix' ]]; then 
+            echo "Error: You cannot merge into any hotfix branches"
+            exit 1
+          else
+            echo "Merge rule requirement passed."
+          fi
