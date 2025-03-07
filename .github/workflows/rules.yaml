@@ -45,7 +45,7 @@ jobs:
           elif [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
             echo "Error: You can only merge feature branches to feature branches"
             exit 1
-          elif [[ $BASE_REF =~ 'hotfix/' || ! $HEAD_REF =~ 'hotfix' ]]; then 
+          elif [[ $BASE_REF =~ 'hotfix/' || ! $BASE_REF =~ 'hotfix' ]]; then 
             echo "Error: You cannot merge into any hotfix branches"
             exit 1
           else
