@@ -49,5 +49,5 @@ jobs:
             echo "Error: You cannot merge into any hotfix branches"
             exit 1
           else
-            echo "Merge rule requirements passed."
+            echo "Merge rule requirements passed"
           fi
