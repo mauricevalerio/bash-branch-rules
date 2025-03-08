@@ -1,4 +1,4 @@
-name: merge-rules
+name: Merge Rules
 
 on: pull_request
 
@@ -21,8 +21,10 @@ jobs:
 
           echo "Branch name '$BRANCH_NAME' is valid."
 
-      - name: Check merge rules
-        shell: bash
+      #Bug - Open PRs with failed status checks will pass if a new PR is submitted that meets the status check conditions
+      #Separate conditions to eliminate the bug.
+
+      - name: Validate branch mergeability to DEV
         run: |
           BASE_REF="${{ github.base_ref }}"
           HEAD_REF="${{ github.head_ref }}"
@@ -30,24 +32,70 @@ jobs:
           if [[ $BASE_REF == 'DEV' && $HEAD_REF != 'main' &&  ! $HEAD_REF =~ 'feature/' ]]; then
             echo "Error: You can only merge main and feature/* branches to DEV"
             exit 1
-          elif [[ $BASE_REF == 'TEST' && $HEAD_REF != 'DEV' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to TEST
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF == 'TEST' && $HEAD_REF != 'DEV' ]]; then 
             echo "Error: You can only merge DEV to TEST"
             exit 1
-          elif [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to UAT
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
             echo "Error: You can only merge TEST to UAT"
             exit 1
-          elif [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' &&  ! $HEAD_REF =~ 'hotfix/' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to PROD
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' && ! $HEAD_REF =~ 'hotfix/' ]]; then 
             echo "Error: You can only merge UAT and hotfix/* branches to PROD"
             exit 1
-          elif [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to main
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
             echo "Error: You can only merge PROD to main"
             exit 1
-          elif [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to feature branches
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
             echo "Error: You can only merge feature branches to feature branches"
             exit 1
-          elif [[ $BASE_REF =~ 'hotfix/' || $BASE_REF =~ 'hotfix' ]]; then 
+          fi
+          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
+
+      - name: Validate branch mergeability to hotfix branches
+        run: |
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          if [[ $BASE_REF =~ 'hotfix' ]]; then 
             echo "Error: You cannot merge into any hotfix branches"
             exit 1
-          else
-            echo "Merge rule requirement passed."
           fi
