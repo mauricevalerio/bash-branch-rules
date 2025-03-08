@@ -25,9 +25,6 @@ jobs:
       runs-on: ubuntu-latest
       steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Validate branch mergeability to DEV
         run: |
           BASE_REF="${{ github.base_ref }}"
@@ -40,8 +37,6 @@ jobs:
 
       - name: Validate branch mergeability to TEST
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF == 'TEST' && $HEAD_REF != 'DEV' ]]; then 
             echo "Error: You can only merge DEV to TEST"
@@ -50,8 +45,6 @@ jobs:
 
       - name: Validate branch mergeability to UAT
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
             echo "Error: You can only merge TEST to UAT"
@@ -60,8 +53,6 @@ jobs:
 
       - name: Validate branch mergeability to PROD
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' && ! $HEAD_REF =~ 'hotfix/' ]]; then 
             echo "Error: You can only merge UAT and hotfix/* branches to PROD"
@@ -70,8 +61,6 @@ jobs:
 
       - name: Validate branch mergeability to main
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
             echo "Error: You can only merge PROD to main"
@@ -80,8 +69,6 @@ jobs:
 
       - name: Validate branch mergeability to feature branches
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
             echo "Error: You can only merge feature branches to feature branches"
@@ -90,8 +77,6 @@ jobs:
 
       - name: Validate branch mergeability to hotfix branches
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
 
           if [[ $BASE_REF =~ 'hotfix' ]]; then 
             echo "Error: You cannot merge into any hotfix branches"
