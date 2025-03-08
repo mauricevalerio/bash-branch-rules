@@ -24,8 +24,8 @@ jobs:
   validate-branch:
       runs-on: ubuntu-latest
       env:
-          BASE_REF={{github.base_ref}}
-          HEAD_REF={{github.head_ref}}
+        BASE_REF: github.base_ref
+        HEAD_REF: github.head_ref
       steps:
 
       - name: Validate branch mergeability to DEV
