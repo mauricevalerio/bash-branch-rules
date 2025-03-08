@@ -1,4 +1,4 @@
-name: merge-rules
+name: Merge Rules
 
 on: pull_request
 
@@ -36,7 +36,7 @@ jobs:
           elif [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
             echo "Error: You can only merge TEST to UAT"
             exit 1
-          elif [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' &&  ! $HEAD_REF =~ 'hotfix/' ]]; then 
+          elif [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' && ! $HEAD_REF =~ 'hotfix/' ]]; then 
             echo "Error: You can only merge UAT and hotfix/* branches to PROD"
             exit 1
           elif [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
@@ -45,7 +45,7 @@ jobs:
           elif [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
             echo "Error: You can only merge feature branches to feature branches"
             exit 1
-          elif [[ $BASE_REF =~ 'hotfix/' || $BASE_REF =~ 'hotfix' ]]; then 
+          elif [[ $BASE_REF =~ 'hotfix' ]]; then 
             echo "Error: You cannot merge into any hotfix branches"
             exit 1
           else
