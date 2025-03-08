@@ -6,6 +6,7 @@ jobs:
   check-branch:
     runs-on: ubuntu-latest
     steps:
+    
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -20,7 +21,10 @@ jobs:
           fi
           echo "Branch name '$BRANCH_NAME' is valid."
 
-    validate-branch:
+  validate-branch:
+      runs-on: ubuntu-latest
+      steps:
+
       - name: Checkout code
         uses: actions/checkout@v4
 
