@@ -18,11 +18,11 @@ jobs:
             echo "Error: Branch name '$BRANCH_NAME' must match the pattern '$PATTERN' and be in lowercase."
             exit 1
           fi
-
           echo "Branch name '$BRANCH_NAME' is valid."
 
-      #Bug - Open PRs with failed status checks will pass if a new PR is submitted that meets the status check conditions
-      #Separate conditions to eliminate the bug.
+    validate-branch:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Validate branch mergeability to DEV
         run: |
@@ -33,7 +33,6 @@ jobs:
             echo "Error: You can only merge main and feature/* branches to DEV"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to TEST
         run: |
@@ -44,7 +43,6 @@ jobs:
             echo "Error: You can only merge DEV to TEST"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to UAT
         run: |
@@ -55,7 +53,6 @@ jobs:
             echo "Error: You can only merge TEST to UAT"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to PROD
         run: |
@@ -66,7 +63,6 @@ jobs:
             echo "Error: You can only merge UAT and hotfix/* branches to PROD"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to main
         run: |
@@ -77,7 +73,6 @@ jobs:
             echo "Error: You can only merge PROD to main"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to feature branches
         run: |
@@ -88,7 +83,6 @@ jobs:
             echo "Error: You can only merge feature branches to feature branches"
             exit 1
           fi
-          echo "'$HEAD_REF' can be merged to '$BASE_REF'"
 
       - name: Validate branch mergeability to hotfix branches
         run: |
