@@ -1,7 +1,7 @@
 name: DEV Merge Rule
 
 on: 
-  pull_request:
+  push:
     branches: 
     - DEV
 
