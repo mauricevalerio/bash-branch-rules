@@ -1,0 +1,17 @@
+name: Master and Main Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - main
+    - master
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to main/master not coming from PROD
+        if: (github.base_ref == 'main' || github.base_ref == 'master') && github.head_ref != 'PROD'
+        run: |
+          echo "Error: You can only merge PROD to main/master"
+          exit 1

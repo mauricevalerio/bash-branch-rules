@@ -1,0 +1,16 @@
+name: UAT Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - UAT
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to UAT not coming from TEST
+        if: github.base_ref == 'UAT' && github.head_ref != 'TEST'
+        run: |
+          echo "Error: You can only merge TEST to UAT"
+          exit 1
