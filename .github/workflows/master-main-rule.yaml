@@ -1,7 +1,7 @@
 name: Master and Main Merge Rule
 
 on: 
-  pull_request:
+  push:
     branches: 
     - main
     - master
