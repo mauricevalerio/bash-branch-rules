@@ -6,7 +6,6 @@ jobs:
   check-branch:
     runs-on: ubuntu-latest
     steps:
-    
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -19,81 +18,47 @@ jobs:
             echo "Error: Branch name '$BRANCH_NAME' must match the pattern '$PATTERN' and be in lowercase."
             exit 1
           fi
+
           echo "Branch name '$BRANCH_NAME' is valid."
-
-  validate-branch:
-      runs-on: ubuntu-latest
-      steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate branch mergeability to DEV
+          
+      - name: Block merge to DEV not coming from main or feature #master
+        if: github.base_ref == 'DEV' && (github.head_ref != 'main' && !contains(github.head_ref, 'feature/')) #master
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
-
-          if [[ $BASE_REF == 'DEV' && $HEAD_REF != 'main' &&  ! $HEAD_REF =~ 'feature/' ]]; then
-            echo "Error: You can only merge main and feature/* branches to DEV"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to TEST
+          echo "Error: You can only merge main and feature/* branches to DEV"
+          exit 1
+        
+      - name: Block merge to TEST not coming from DEV
+        if: github.base_ref == 'TEST' && github.head_ref != 'DEV'
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
+          echo "Error: You can only merge DEV to TEST"
+          exit 1
 
-          if [[ $BASE_REF == 'TEST' && $HEAD_REF != 'DEV' ]]; then 
-            echo "Error: You can only merge DEV to TEST"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to UAT
+      - name: Block merge to UAT not coming from TEST
+        if: github.base_ref == 'UAT' && github.head_ref != 'TEST'
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
-
-          if [[ $BASE_REF == 'UAT' && $HEAD_REF != 'TEST' ]]; then 
-            echo "Error: You can only merge TEST to UAT"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to PROD
+          echo "Error: You can only merge TEST to UAT"
+          exit 1
+          
+      - name: Block merge to PROD not coming from UAT or hotfix
+        if: github.base_ref == 'PROD' && (github.head_ref != 'UAT' && !contains(github.head_ref, 'hotfix/'))
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
+          echo "Error: You can only merge UAT and hotfix/* branches to PROD"
+          exit 1
 
-          if [[ $BASE_REF == 'PROD' && $HEAD_REF != 'UAT' && ! $HEAD_REF =~ 'hotfix/' ]]; then 
-            echo "Error: You can only merge UAT and hotfix/* branches to PROD"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to main
+      - name: Block merge to main not coming from PROD #master
+        if: github.base_ref == 'main' && github.head_ref != 'PROD'
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
+          echo "Error: You can only merge PROD to main"
+          exit 1
 
-          if [[ $BASE_REF == 'main' && $HEAD_REF != 'PROD' ]]; then 
-            echo "Error: You can only merge PROD to main"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to feature branches
+      - name: Block merge from feature not coming from feature
+        if: contains(github.base_ref, 'feature/') && !contains(github.head_ref, 'feature/')
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
-
-          if [[ $BASE_REF =~ 'feature/' && ! $HEAD_REF =~ 'feature/' ]]; then 
-            echo "Error: You can only merge feature branches to feature branches"
-            exit 1
-          fi
-
-      - name: Validate branch mergeability to hotfix branches
+          echo "Error: You can only merge feature branches to feature branches"
+          exit 1
+          
+      - name: Block any merge to hotfix branches
+        if: contains(github.base_ref, 'hotfix/') || contains(github.base_ref, 'hotfix')
         run: |
-          BASE_REF="${{ github.base_ref }}"
-          HEAD_REF="${{ github.head_ref }}"
-
-          if [[ $BASE_REF =~ 'hotfix' ]]; then 
-            echo "Error: You cannot merge into any hotfix branches"
-            exit 1
-          fi
+          echo "Error: You cannot merge into any hotfix branches"
+          exit 1
