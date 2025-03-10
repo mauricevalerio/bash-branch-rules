@@ -1,27 +1,12 @@
-name: Merge Rules
+name: DEV Merge Rule
 
-on: pull_request
+on: 
+  pull_request:
+    branches: 
+    - DEV
 
 jobs:
-  validate-branch-name:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Validate branch name
-        run: |
-          BRANCH_NAME="${{ github.head_ref }}"
-          PATTERN='^(master|main|TEST|DEV|PROD|UAT|feature|hotfix)(\/.*)?$'
-
-          if [[ !$BRANCH_NAME =~ $PATTERN ]]; then
-            echo "Error: Branch name '$BRANCH_NAME' must match the pattern '$PATTERN' and be in lowercase."
-            exit 1
-          fi
-
-          echo "Branch name '$BRANCH_NAME' is valid."
-
-  validate-dev-merge:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge to DEV not coming from main/master or feature
@@ -29,8 +14,16 @@ jobs:
         run: |
           echo "Error: You can only merge main/master and feature/* branches to DEV"
           exit 1
+#
+name: TEST Merge Rule
 
-  validate-test-merge:
+on: 
+  pull_request:
+    branches: 
+    - TEST
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge to TEST not coming from DEV
@@ -38,8 +31,16 @@ jobs:
         run: |
           echo "Error: You can only merge DEV to TEST"
           exit 1
+#
+name: UAT Merge Rule
 
-  validate-uat-merge:
+on: 
+  pull_request:
+    branches: 
+    - UAT
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge to UAT not coming from TEST
@@ -47,8 +48,16 @@ jobs:
         run: |
           echo "Error: You can only merge TEST to UAT"
           exit 1
+#
+name: PROD Merge Rule
 
-  validate-prod-merge:
+on: 
+  pull_request:
+    branches: 
+    - PROD
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge to PROD not coming from UAT or hotfix
@@ -56,8 +65,17 @@ jobs:
         run: |
           echo "Error: You can only merge UAT and hotfix/* branches to PROD"
           exit 1
+#
+name: Master and Main Merge Rule
 
-  validate-master-merge:
+on: 
+  pull_request:
+    branches: 
+    - main
+    - master
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge to main/master not coming from PROD
@@ -65,8 +83,16 @@ jobs:
         run: |
           echo "Error: You can only merge PROD to main/master"
           exit 1
+#
+name: Feature Merge Rule
 
-  validate-feature-merge:
+on: 
+  pull_request:
+    branches: 
+    - feature/*
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block merge from feature not coming from feature
@@ -74,8 +100,16 @@ jobs:
         run: |
           echo "Error: You can only merge feature branches to feature branches"
           exit 1
+#
+name: Hotfix Merge Rule
 
-  validate-hotfix-merge:
+on: 
+  pull_request:
+    branches: 
+    - hotfix/*
+
+jobs:
+  validate-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Block any merge to hotfix branches
