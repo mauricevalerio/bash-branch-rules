@@ -1,6 +1,6 @@
 name: Merge Rules
 
-on: pull_request
+on: push
 
 jobs:
   check-branch:
