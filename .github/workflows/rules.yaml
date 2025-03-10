@@ -3,7 +3,7 @@ name: Merge Rules
 on: pull_request
 
 jobs:
-  check-branch:
+  validate-branch-name:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,43 +20,64 @@ jobs:
           fi
 
           echo "Branch name '$BRANCH_NAME' is valid."
-          
-      - name: Block merge to DEV not coming from main or feature #master
-        if: github.base_ref == 'DEV' && (github.head_ref != 'main' && !contains(github.head_ref, 'feature/')) #master
+
+  validate-dev-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to DEV not coming from main/master or feature
+        if: github.base_ref == 'DEV' && (github.head_ref != 'main' && github.head_ref != 'master' && !contains(github.head_ref, 'feature/'))
         run: |
-          echo "Error: You can only merge main and feature/* branches to DEV"
+          echo "Error: You can only merge main/master and feature/* branches to DEV"
           exit 1
-        
+
+  validate-test-merge:
+    runs-on: ubuntu-latest
+    steps:
       - name: Block merge to TEST not coming from DEV
         if: github.base_ref == 'TEST' && github.head_ref != 'DEV'
         run: |
           echo "Error: You can only merge DEV to TEST"
           exit 1
 
+  validate-uat-merge:
+    runs-on: ubuntu-latest
+    steps:
       - name: Block merge to UAT not coming from TEST
         if: github.base_ref == 'UAT' && github.head_ref != 'TEST'
         run: |
           echo "Error: You can only merge TEST to UAT"
           exit 1
-          
+
+  validate-prod-merge:
+    runs-on: ubuntu-latest
+    steps:
       - name: Block merge to PROD not coming from UAT or hotfix
         if: github.base_ref == 'PROD' && (github.head_ref != 'UAT' && !contains(github.head_ref, 'hotfix/'))
         run: |
           echo "Error: You can only merge UAT and hotfix/* branches to PROD"
           exit 1
 
-      - name: Block merge to main not coming from PROD #master
-        if: github.base_ref == 'main' && github.head_ref != 'PROD'
+  validate-master-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to main/master not coming from PROD
+        if: (github.base_ref == 'main' && github.base_ref == 'master') && github.head_ref != 'PROD'
         run: |
-          echo "Error: You can only merge PROD to main"
+          echo "Error: You can only merge PROD to main/master"
           exit 1
 
+  validate-feature-merge:
+    runs-on: ubuntu-latest
+    steps:
       - name: Block merge from feature not coming from feature
         if: contains(github.base_ref, 'feature/') && !contains(github.head_ref, 'feature/')
         run: |
           echo "Error: You can only merge feature branches to feature branches"
           exit 1
-          
+
+  validate-hotfix-merge:
+    runs-on: ubuntu-latest
+    steps:
       - name: Block any merge to hotfix branches
         if: contains(github.base_ref, 'hotfix/') || contains(github.base_ref, 'hotfix')
         run: |
