@@ -1,0 +1,16 @@
+name: Hotfix Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - hotfix/*
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block any merge to hotfix branches
+        if: contains(github.base_ref, 'hotfix/') || contains(github.base_ref, 'hotfix')
+        run: |
+          echo "Error: You cannot merge into any hotfix branches"
+          exit 1

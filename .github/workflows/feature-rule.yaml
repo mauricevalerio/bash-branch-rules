@@ -1,0 +1,16 @@
+name: Feature Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - feature/*
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge from feature not coming from feature
+        if: contains(github.base_ref, 'feature/') && !contains(github.head_ref, 'feature/')
+        run: |
+          echo "Error: You can only merge feature branches to feature branches"
+          exit 1

@@ -1,0 +1,16 @@
+name: PROD Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - PROD
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to PROD not coming from UAT or hotfix
+        if: github.base_ref == 'PROD' && (github.head_ref != 'UAT' && !contains(github.head_ref, 'hotfix/'))
+        run: |
+          echo "Error: You can only merge UAT and hotfix/* branches to PROD"
+          exit 1

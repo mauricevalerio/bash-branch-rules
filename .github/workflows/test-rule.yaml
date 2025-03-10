@@ -1,0 +1,16 @@
+name: TEST Merge Rule
+
+on: 
+  pull_request:
+    branches: 
+    - TEST
+
+jobs:
+  validate-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block merge to TEST not coming from DEV
+        if: github.base_ref == 'TEST' && github.head_ref != 'DEV'
+        run: |
+          echo "Error: You can only merge DEV to TEST"
+          exit 1
